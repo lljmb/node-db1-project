@@ -14,23 +14,28 @@ router.get('/', async (req, res, next) => {
 
 })
 
-router.get('/:id', mw.checkAccountId, (req, res, next) => {
+router.get('/:id', mw.checkAccountId, async (req, res, next) => {
   // DO YOUR MAGIC
-  res.json(req.account)
+  try { 
+    const data = await Accounts.getById(req.params.id)
+    res.json(data)
+  } catch(err) {
+    next(err)
+  }
 })
 
-router.post('/', (req, res, next) => {
+router.post('/', mw.checkAccountPayload, mw.checkAccountNameUnique, (req, res, next) => {
   // DO YOUR MAGIC
   Accounts.create(req.body)
   .then(data => {
-    res.json(data)
+    res.status(201).json(data)
   })
   .catch(err => {
     next(err)
   })
 })
 
-router.put('/:id', mw.checkAccountId, (req, res, next) => {
+router.put('/:id', mw.checkAccountId, mw.checkAccountPayload, mw.checkAccountNameUnique, (req, res, next) => {
   // DO YOUR MAGIC
   Accounts.updateById(req.params.id, req.body)
   .then(data => {
